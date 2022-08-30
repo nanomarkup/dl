@@ -1,0 +1,35 @@
+sb
+
+apps:
+	sb
+
+defines:
+	src github.com/sapplications/sb
+	logDefault 0
+	logTrace 1
+	logDebug 2
+	logInfo 3
+	logWarn 4
+	logError 5
+	logOff 6
+
+sb: 
+	coder sgo
+	entry {src}/cmd.SmartBuilder
+
+{src}/app.SmartBuilder:
+	Builder *{src}/plugins.BuilderPlugin
+	ModManager *github.com/sapplications/smod/lod.Manager
+	PluginHandshake github.com/hashicorp/go-plugin.HandshakeConfig
+	Logger {src}/helper/hashicorp/hclog.NewStdOut("sb", {logInfo})
+
+{src}/plugins/sgo.Plugin:
+	Builder *{src}/golang.Builder
+	Generator *{src}/golang.Generator
+	Handshake github.com/hashicorp/go-plugin.HandshakeConfig
+	Logger {src}/helper/hashicorp/hclog.NewFileOut("sgo", {logInfo})
+
+github.com/hashicorp/go-plugin.HandshakeConfig:
+	ProtocolVersion 1
+	MagicCookieKey "SMART_PLUGIN"
+	MagicCookieValue "sbuilder"
