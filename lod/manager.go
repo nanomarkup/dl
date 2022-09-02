@@ -77,30 +77,35 @@ func (m *Manager) SetLogger(logger Logger) {
 	m.Logger = logger
 }
 
+//lint:ignore U1000 Ignore unused function
 func (m *Manager) logTrace(message string) {
 	if m.Logger != nil {
 		m.Logger.Trace(message)
 	}
 }
 
+//lint:ignore U1000 Ignore unused function
 func (m *Manager) logDebug(message string) {
 	if m.Logger != nil {
 		m.Logger.Debug(message)
 	}
 }
 
+//lint:ignore U1000 Ignore unused function
 func (m *Manager) logInfo(message string) {
 	if m.Logger != nil {
 		m.Logger.Info(message)
 	}
 }
 
+//lint:ignore U1000 Ignore unused function
 func (m *Manager) logWarn(message string) {
 	if m.Logger != nil {
 		m.Logger.Warn(message)
 	}
 }
 
+//lint:ignore U1000 Ignore unused function
 func (m *Manager) logError(message string) {
 	if m.Logger != nil {
 		m.Logger.Error(message)
