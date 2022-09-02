@@ -1,3 +1,5 @@
+// Copyright 2022 Vitalii Noha vitalii.noga@gmail.com. All rights reserved.
+
 package lod
 
 import (
@@ -8,11 +10,11 @@ import (
 	"gopkg.in/check.v1"
 )
 
-func (s *SModuleSuite) TestLoading(c *check.C) {
+func (s *lodSuite) TestReadAll(c *check.C) {
 	m := Manager{}
 	m.SetLogger(hclog.New(&hclog.LoggerOptions{
 		Name:   "test",
-		Level:  hclog.Level(1),
+		Level:  hclog.Trace,
 		Output: os.Stdout,
 	}))
 	r, e := m.ReadAll("sb")

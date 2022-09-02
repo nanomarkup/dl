@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func (m *Manager) Init(module string) error {
+func (m *Manager) Init(module, kind string) error {
 	return addItem(module, "sb", AppsItemName)
 }
 
@@ -59,12 +59,12 @@ func (m *Manager) DeleteDependency(item, dependency string) error {
 	}
 }
 
-func (m *Manager) ReadAll(kind string) (Reader, error) {
+func (m *Manager) ReadAll(kind string) (Module, error) {
 	m.logTrace(fmt.Sprintf("loading \"%s\" modules", kind))
 	mods, err := loadModules(kind)
 	if err == nil {
 		if mods == nil {
-			return &module{}, fmt.Errorf("cannot load \"%s\" modules", kind)
+			return &module{}, fmt.Errorf(ModuleErrorOnLoadingF, kind)
 		}
 		m.logTrace("reading items")
 		return loadItems(mods)

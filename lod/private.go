@@ -39,6 +39,14 @@ func getModuleName(fileName string) string {
 	}
 }
 
+func getModuleFileName(name string) string {
+	if strings.HasSuffix(name, moduleExt) {
+		return name
+	} else {
+		return name + moduleExt
+	}
+}
+
 func split(line string) []string {
 	var res []string
 	its := strings.Split(line, " ")
@@ -66,7 +74,7 @@ func loadModule(name string, kind string) (*module, error) {
 	mod.name = name
 	mod.items = Items{}
 
-	fileName := GetModuleFileName(name)
+	fileName := getModuleFileName(name)
 	file, err := os.Open(fileName)
 	if err != nil {
 		return nil, err
@@ -88,14 +96,14 @@ func loadModule(name string, kind string) (*module, error) {
 			return nil, err
 		}
 		// remove comment
-		cindex = strings.Index(line, "//")
+		cindex = strings.Index(line, CommentOptCode)
 		if cindex > 0 {
 			line = line[:cindex]
 		}
 		// process the line
 		line = strings.Trim(line, trimChars)
 		if line != "" {
-			pos = strings.Index(line, " ")
+			pos = strings.Index(line, ItemSeparator)
 			if pos > 0 {
 				token1 = strings.Trim(line[0:pos], trimChars)
 				token2 = strings.Trim(line[pos:], trimChars)
@@ -106,20 +114,20 @@ func loadModule(name string, kind string) (*module, error) {
 			if index == 1 {
 				// check and initialize a kind of module
 				if token1 != kind || token2 != "" {
-					return nil, fmt.Errorf("the first token should be \"%s\"", kind)
+					return nil, fmt.Errorf(FirstTokenInvalidF, kind)
 				}
 				mod.kind = token1
 			} else {
 				// process items
-				if token1[len(token1)-1:] == ":" {
+				if token1[len(token1)-1:] == ItemOptCode {
 					if token2 != "" {
-						return nil, fmt.Errorf("invalid syntax in \"%s\" line", line)
+						return nil, fmt.Errorf(LineSyntaxInvalidF, line)
 					}
 					// parse the next item
 					item = token1[:len(token1)-1]
 				} else {
-					if item != "apps" && token2 == "" {
-						return nil, fmt.Errorf("invalid syntax in \"%s\" line", line)
+					if item != AppsItemName && token2 == "" {
+						return nil, fmt.Errorf(LineSyntaxInvalidF, line)
 					}
 					// add new dependency item
 					if mod.items[item] == nil {
@@ -145,7 +153,7 @@ func loadModuleAsync(name string, kind string, res chan<- moduleAsync) {
 
 func loadModules(kind string) (modules, error) {
 	if kind == "" {
-		return nil, fmt.Errorf("kind of modules to load is not specified")
+		return nil, fmt.Errorf(ModuleKindIsMissing)
 	}
 	// read and check all modules in the working directory
 	files, err := ioutil.ReadDir(".")
@@ -202,7 +210,7 @@ func loadItems(mods modules) (*module, error) {
 		// read all items and validate them
 		for name, data := range m.items {
 			if _, found := all[name]; found {
-				return nil, fmt.Errorf("\"%s\" item of \"%s\" module already exists", name, m.name)
+				return nil, fmt.Errorf(ItemExistsInModuleF, name, m.name)
 			}
 			all[name] = data
 		}
@@ -210,9 +218,9 @@ func loadItems(mods modules) (*module, error) {
 	// process defines
 	newItem := ""
 	var err error
-	if defines, found := all["defines"]; found && len(defines) > 0 {
+	if defines, found := all[DefinesOptCode]; found && len(defines) > 0 {
 		for item, deps := range all {
-			if item == "defines" {
+			if item == DefinesOptCode {
 				continue
 			}
 			// update item name
@@ -246,14 +254,14 @@ func loadItems(mods modules) (*module, error) {
 				}
 			}
 		}
-		delete(all, "defines")
+		delete(all, DefinesOptCode)
 	}
 	return &module{name: "", kind: kind, items: all}, nil
 }
 
 func saveModule(module *module) error {
-	fileName := GetModuleFileName(module.name)
-	exists := IsModuleExists(fileName)
+	fileName := getModuleFileName(module.name)
+	exists := isModuleExists(fileName)
 	file, err := os.Create(fileName)
 	if err != nil {
 		return err
@@ -275,13 +283,13 @@ func saveModule(module *module) error {
 
 func addItem(moduleName, kind, item string) error {
 	// check the item is exist
-	if found, modName := IsItemExists(kind, item); found {
-		return fmt.Errorf(ItemExistsF, item, modName)
+	if found, modName := isItemExists(kind, item); found {
+		return fmt.Errorf(ItemExistsInModuleF, item, modName)
 	}
 	// load the existing module or create a new one
 	var mod *module
 	var err error
-	if IsModuleExists(moduleName) {
+	if isModuleExists(moduleName) {
 		if mod, err = loadModule(moduleName, kind); err != nil {
 			return err
 		}
@@ -315,23 +323,43 @@ func findItem(kind, item string) (*module, error) {
 }
 
 func applyDefines(item string, defines map[string]string) (string, error) {
-	beg := strings.Index(item, "{")
+	beg := strings.Index(item, DefineBegOptCode)
 	end := -1
 	defineOrg := ""
 	defineName := ""
+	trimDefineChars := fmt.Sprintf(" %s%s", DefineBegOptCode, DefineEndOptCode)
 	for beg > -1 {
-		end = strings.Index(item, "}")
+		end = strings.Index(item, DefineEndOptCode)
 		if end < beg {
-			return "", fmt.Errorf("\"%s\" incorrect item name", item)
+			return "", fmt.Errorf(ItemNameInvalidF, item)
 		}
 		defineOrg = item[beg : end+1]
-		defineName = strings.Trim(defineOrg, " {}")
+		defineName = strings.Trim(defineOrg, trimDefineChars)
 		if value, found := defines[defineName]; found {
 			item = strings.Replace(item, defineOrg, value, 1)
 		} else {
-			return "", fmt.Errorf("\"%s\" define is not declared", defineName)
+			return "", fmt.Errorf(DefineIsMissingF, defineName)
 		}
-		beg = strings.Index(item, "{")
+		beg = strings.Index(item, DefineBegOptCode)
 	}
 	return item, nil
+}
+
+func isItemExists(kind, item string) (bool, string) {
+	wd, _ := os.Getwd()
+	mods, err := loadModules(kind)
+	if (err != nil) && (err.Error() != fmt.Sprintf(ModuleFilesMissingF, wd)) {
+		return false, ""
+	}
+	for _, m := range mods {
+		if _, found := m.items[item]; found {
+			return true, m.name
+		}
+	}
+	return false, ""
+}
+
+func isModuleExists(name string) bool {
+	_, err := os.Stat(getModuleFileName(name))
+	return err == nil
 }

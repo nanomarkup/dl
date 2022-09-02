@@ -28,7 +28,7 @@ func (f *Formatter) Item(name string, deps map[string]string) string {
 	return res.String()
 }
 
-func (f *Formatter) String(module Reader) string {
+func (f *Formatter) String(module Module) string {
 	var res bytes.Buffer
 	res.WriteString(fmt.Sprintf(attrs.kindFmt, module.Kind()))
 	// sort items

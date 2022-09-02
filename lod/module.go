@@ -12,8 +12,8 @@ var attrs = struct {
 	depFmt  string
 }{
 	"%s\n",
-	"%s:\n",
-	"%s %s\n",
+	"%s" + ItemOptCode + "\n",
+	"%s" + ItemSeparator + "%s\n",
 }
 
 func (m *module) Kind() string {
@@ -31,20 +31,20 @@ func (m *module) App(name string) (Item, error) {
 	}
 	// check the applicatin is exist
 	if _, found := apps[name]; !found {
-		return nil, fmt.Errorf("The selected \"%s\" application is not found", name)
+		return nil, fmt.Errorf(AppIsMissingF, name)
 	}
 	// read application data
 	info, found := m.items[name]
 	if !found {
-		return nil, fmt.Errorf("the \"%s\" item is not found", name)
+		return nil, fmt.Errorf(ItemIsMissingF, name)
 	}
 	return info, nil
 }
 
 func (m *module) Apps() (Item, error) {
-	apps := m.items["apps"]
+	apps := m.items[AppsItemName]
 	if apps == nil {
-		return nil, fmt.Errorf("the apps item is not found")
+		return nil, fmt.Errorf(ItemIsMissingF, AppsItemName)
 	} else {
 		return apps, nil
 	}
@@ -52,7 +52,7 @@ func (m *module) Apps() (Item, error) {
 
 func (m *module) AddItem(item string) error {
 	if _, found := m.items[item]; found {
-		return fmt.Errorf("\"%s\" item already exists", item)
+		return fmt.Errorf(ItemExistsF, item)
 	}
 	m.items[item] = Item{}
 	return nil
@@ -61,10 +61,10 @@ func (m *module) AddItem(item string) error {
 func (m *module) AddDependency(item, dependency, resolver string, update bool) error {
 	curr, found := m.items[item]
 	if !found {
-		return fmt.Errorf("\"%s\" item does not exist", item)
+		return fmt.Errorf(ItemIsMissingF, item)
 	}
 	if _, found := curr[dependency]; found && !update {
-		return fmt.Errorf("\"%s\" already exists for \"%s\" item", dependency, item)
+		return fmt.Errorf(DepItemExistsF, dependency, item)
 	}
 	curr[dependency] = resolver
 	return nil

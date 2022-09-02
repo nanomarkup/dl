@@ -1,7 +1,8 @@
+// Copyright 2022 Vitalii Noha vitalii.noga@gmail.com. All rights reserved.
+
 package lod
 
 import (
-	"io/ioutil"
 	"testing"
 
 	"gopkg.in/check.v1"
@@ -11,16 +12,20 @@ func Test(t *testing.T) {
 	check.TestingT(t)
 }
 
-type SModuleSuite struct {
+type lodSuite struct {
+	mod module
 }
 
-var _ = check.Suite(&SModuleSuite{})
+var _ = check.Suite(&lodSuite{
+	mod: module{
+		kind: kindName,
+		items: Items{
+			AppsItemName: {appName: ""},
+			appName:      map[string]string{},
+		},
+	}})
 
-func copyFile(src, dst string) error {
-	input, err := ioutil.ReadFile(src)
-	if err == nil {
-		return ioutil.WriteFile(dst, input, 0644)
-	} else {
-		return err
-	}
-}
+const (
+	kindName string = "sb"
+	appName  string = "test"
+)
