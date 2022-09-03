@@ -24,7 +24,6 @@ func (f *Formatter) Item(name string, deps map[string]string) string {
 	for _, dep := range depsSorted {
 		res.WriteString(fmt.Sprintf("\t"+attrs.depFmt, dep, deps[dep]))
 	}
-	res.WriteString(")\n")
 	return res.String()
 }
 
