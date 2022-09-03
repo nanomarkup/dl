@@ -121,6 +121,10 @@ func loadModule(name string, kind string) (*module, error) {
 			break
 		}
 	}
+	// add empty item if it exists
+	if mod.items[item] == nil {
+		mod.items[item] = Item{}
+	}
 	return &mod, nil
 }
 

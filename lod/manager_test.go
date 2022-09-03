@@ -17,6 +17,10 @@ func (s *lodSuite) TestReadAll(c *check.C) {
 		Level:  hclog.Trace,
 		Output: os.Stdout,
 	}))
+	wd, _ := os.Getwd()
+	defer os.Chdir(wd)
+	os.Chdir("sb/app")
+	fmt.Println(os.Getwd())
 	r, e := m.ReadAll("sb")
 	if e != nil {
 		fmt.Println(e.Error())
