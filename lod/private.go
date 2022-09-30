@@ -12,10 +12,6 @@ import (
 	"strings"
 )
 
-const (
-	moduleExt string = ".sb"
-)
-
 type module struct {
 	name  string
 	kind  string
@@ -31,19 +27,25 @@ type Item = map[string]string
 type Items = map[string]Item
 type modules []module
 
-func getModuleName(fileName string) string {
-	if strings.HasSuffix(fileName, moduleExt) {
-		return fileName[0 : len(fileName)-len(moduleExt)]
+func getModuleExt(kind string) string {
+	return "." + kind
+}
+
+func getModuleName(fileName, kind string) string {
+	ext := getModuleExt(kind)
+	if strings.HasSuffix(fileName, ext) {
+		return fileName[0 : len(fileName)-len(ext)]
 	} else {
 		return fileName
 	}
 }
 
-func getModuleFileName(name string) string {
-	if strings.HasSuffix(name, moduleExt) {
+func getModuleFileName(name, kind string) string {
+	ext := getModuleExt(kind)
+	if strings.HasSuffix(name, ext) {
 		return name
 	} else {
-		return name + moduleExt
+		return name + ext
 	}
 }
 
@@ -52,7 +54,7 @@ func loadModule(name string, kind string) (*module, error) {
 	mod.name = name
 	mod.items = Items{}
 
-	fileName := getModuleFileName(name)
+	fileName := getModuleFileName(name, kind)
 	file, err := os.Open(fileName)
 	if err != nil {
 		return nil, err
@@ -170,7 +172,7 @@ func loadModules(kind string) (modules, error) {
 			continue
 		}
 		// add module
-		mods = append(mods, module{name: getModuleName(item.mod.name), kind: item.mod.kind, items: item.mod.items})
+		mods = append(mods, module{name: getModuleName(item.mod.name, kind), kind: item.mod.kind, items: item.mod.items})
 	}
 	if err != nil {
 		return nil, err
@@ -242,8 +244,8 @@ func loadItems(mods modules) (*module, error) {
 }
 
 func saveModule(module *module) error {
-	fileName := getModuleFileName(module.name)
-	exists := isModuleExists(fileName)
+	fileName := getModuleFileName(module.name, module.kind)
+	exists := isModuleExists(fileName, module.kind)
 	file, err := os.Create(fileName)
 	if err != nil {
 		return err
@@ -271,7 +273,7 @@ func addItem(moduleName, kind, item string) error {
 	// load the existing module or create a new one
 	var mod *module
 	var err error
-	if isModuleExists(moduleName) {
+	if isModuleExists(moduleName, kind) {
 		if mod, err = loadModule(moduleName, kind); err != nil {
 			return err
 		}
@@ -341,7 +343,7 @@ func isItemExists(kind, item string) (bool, string) {
 	return false, ""
 }
 
-func isModuleExists(name string) bool {
-	_, err := os.Stat(getModuleFileName(name))
+func isModuleExists(name, kind string) bool {
+	_, err := os.Stat(getModuleFileName(name, kind))
 	return err == nil
 }
