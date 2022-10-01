@@ -53,7 +53,7 @@ const (
 	ModuleFilesMissingF   string = "no sb files in \"%s\""
 	ModuleKindIsMissing   string = "kind of modules to load is not specified"
 	ModuleKindMismatchF   string = "the \"%s\" kind of \"%s\" module is mismatch the \"%s\" selected kind"
-	ModuleErrorOnLoadingF string = "cannot load \"%s\" modules"
+	ModuleErrorOnLoadingF string = "cannot load \"%s\" module/s"
 	FirstTokenInvalidF    string = "the first token should be \"%s\""
 	LineSyntaxInvalidF    string = "invalid syntax in \"%s\" line"
 )

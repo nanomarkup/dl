@@ -5,10 +5,48 @@ package lod
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/hashicorp/go-hclog"
 	"gopkg.in/check.v1"
 )
+
+func (s *lodSuite) TestReadUseFileName(c *check.C) {
+	m := Manager{}
+	m.SetLogger(hclog.New(&hclog.LoggerOptions{
+		Name:   "test",
+		Level:  hclog.Trace,
+		Output: os.Stdout,
+	}))
+	wd, _ := os.Getwd()
+	defer os.Chdir(wd)
+	os.Chdir("sb/app")
+	r, e := m.Read("app_test.sb")
+	if e != nil {
+		fmt.Println(e.Error())
+		c.Error()
+		return
+	}
+	c.Assert(r, check.NotNil)
+}
+
+func (s *lodSuite) TestReadUseFilePath(c *check.C) {
+	m := Manager{}
+	m.SetLogger(hclog.New(&hclog.LoggerOptions{
+		Name:   "test",
+		Level:  hclog.Trace,
+		Output: os.Stdout,
+	}))
+	wd, _ := os.Getwd()
+	path := filepath.Join(wd, "sb", "app", "app_test.sb")
+	r, e := m.Read(path)
+	if e != nil {
+		fmt.Println(e.Error())
+		c.Error()
+		return
+	}
+	c.Assert(r, check.NotNil)
+}
 
 func (s *lodSuite) TestReadAll(c *check.C) {
 	m := Manager{}
@@ -20,7 +58,6 @@ func (s *lodSuite) TestReadAll(c *check.C) {
 	wd, _ := os.Getwd()
 	defer os.Chdir(wd)
 	os.Chdir("sb/app")
-	fmt.Println(os.Getwd())
 	r, e := m.ReadAll("sb")
 	if e != nil {
 		fmt.Println(e.Error())

@@ -4,6 +4,7 @@ package lod
 
 import (
 	"fmt"
+	"path/filepath"
 )
 
 func (m *Manager) Init(module, kind string) error {
@@ -56,6 +57,24 @@ func (m *Manager) DeleteDependency(item, dependency string) error {
 		}
 	} else {
 		return nil
+	}
+}
+
+func (m *Manager) Read(filePath string) (Module, error) {
+	m.logTrace(fmt.Sprintf("loading \"%s\" file", filePath))
+	ext := filepath.Ext(filePath)
+	name := filePath[0 : len(filePath)-len(ext)]
+	mod, err := loadModule(name, ext[1:])
+	if err == nil {
+		if mod == nil {
+			return &module{}, fmt.Errorf(ModuleErrorOnLoadingF, filePath)
+		}
+		m.logTrace("reading items")
+		mods := modules{}
+		mods = append(mods, *mod)
+		return loadItems(mods)
+	} else {
+		return &module{}, err
 	}
 }
 
