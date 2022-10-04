@@ -6,7 +6,6 @@ CONSTANTS
 
 const (
 	// application
-	AppsItemName     string = "apps"
 	ItemSeparator    string = " "
 	ItemOptCode      string = ":"
 	DefinesOptCode   string = "defines"
@@ -16,7 +15,6 @@ const (
 	// notifications
 	ModuleIsCreatedF string = "%s file has been created\n"
 	// errors
-	AppIsMissingF         string = "the selected \"%s\" application is not found"
 	ItemExistsF           string = "the \"%s\" item already exists"
 	ItemExistsInModuleF   string = "the \"%s\" item already exists in \"%s\" module"
 	ItemIsMissingF        string = "the \"%s\" item does not exist"
@@ -26,7 +24,7 @@ const (
 	ModuleFilesMissingF   string = "no sb files in \"%s\""
 	ModuleKindIsMissing   string = "kind of modules to load is not specified"
 	ModuleKindMismatchF   string = "the \"%s\" kind of \"%s\" module is mismatch the \"%s\" selected kind"
-	ModuleErrorOnLoadingF string = "cannot load \"%s\" modules"
+	ModuleErrorOnLoadingF string = "cannot load \"%s\" module/s"
 	FirstTokenInvalidF    string = "the first token should be \"%s\""
 	LineSyntaxInvalidF    string = "invalid syntax in \"%s\" line"
 )
@@ -69,7 +67,7 @@ func (m *Manager) DeleteDependency(item, dependency string) error
 
 func (m *Manager) DeleteItem(item string) error
 
-func (m *Manager) Init(module, kind string) error
+func (m *Manager) Read(filePath string) (Module, error)
 
 func (m *Manager) ReadAll(kind string) (Module, error)
 
@@ -79,7 +77,5 @@ type Module interface {
 	Kind() string
 	Items() map[string]map[string]string
 	Dependency(string, string) string
-	App(string) (map[string]string, error)
-	Apps() (map[string]string, error)
 }
 

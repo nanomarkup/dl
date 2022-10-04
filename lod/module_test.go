@@ -8,19 +8,6 @@ import (
 	"gopkg.in/check.v1"
 )
 
-func (s *lodSuite) TestApp(c *check.C) {
-	item, err := s.mod.App(appName)
-	c.Assert(err, check.IsNil)
-	c.Assert(item, check.NotNil)
-}
-
-func (s *lodSuite) TestApps(c *check.C) {
-	items, err := s.mod.Apps()
-	c.Assert(err, check.IsNil)
-	c.Assert(items, check.NotNil)
-	c.Assert(len(items), check.Equals, 1)
-}
-
 func (s *lodSuite) TestKind(c *check.C) {
 	c.Assert(s.mod.Kind(), check.Equals, kindName)
 }

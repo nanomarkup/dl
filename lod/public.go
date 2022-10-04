@@ -24,8 +24,6 @@ type Module interface {
 	Kind() string
 	Items() map[string]map[string]string
 	Dependency(string, string) string
-	App(string) (map[string]string, error)
-	Apps() (map[string]string, error)
 }
 
 type Formatter struct {
@@ -33,7 +31,6 @@ type Formatter struct {
 
 const (
 	// application
-	AppsItemName     string = "apps"
 	ItemSeparator    string = " "
 	ItemOptCode      string = ":"
 	DefinesOptCode   string = "defines"
@@ -43,7 +40,6 @@ const (
 	// notifications
 	ModuleIsCreatedF string = "%s file has been created\n"
 	// errors
-	AppIsMissingF         string = "the selected \"%s\" application is not found"
 	ItemExistsF           string = "the \"%s\" item already exists"
 	ItemExistsInModuleF   string = "the \"%s\" item already exists in \"%s\" module"
 	ItemIsMissingF        string = "the \"%s\" item does not exist"

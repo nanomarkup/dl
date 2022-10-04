@@ -106,9 +106,6 @@ func loadModule(name string, kind string) (*module, error) {
 					// parse the next item
 					item = token1[:len(token1)-1]
 				} else {
-					if item != AppsItemName && token2 == "" {
-						return nil, fmt.Errorf(LineSyntaxInvalidF, line)
-					}
 					// add new dependency item
 					if mod.items[item] == nil {
 						mod.items[item] = Item{}

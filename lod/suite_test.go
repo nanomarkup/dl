@@ -20,8 +20,7 @@ var _ = check.Suite(&lodSuite{
 	mod: module{
 		kind: kindName,
 		items: Items{
-			AppsItemName: {appName: ""},
-			appName:      map[string]string{},
+			appName: map[string]string{},
 		},
 	}})
 

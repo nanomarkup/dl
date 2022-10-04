@@ -24,32 +24,6 @@ func (m *module) Items() Items {
 	return m.items
 }
 
-func (m *module) App(name string) (Item, error) {
-	apps, err := m.Apps()
-	if err != nil {
-		return nil, err
-	}
-	// check the applicatin is exist
-	if _, found := apps[name]; !found {
-		return nil, fmt.Errorf(AppIsMissingF, name)
-	}
-	// read application data
-	info, found := m.items[name]
-	if !found {
-		return nil, fmt.Errorf(ItemIsMissingF, name)
-	}
-	return info, nil
-}
-
-func (m *module) Apps() (Item, error) {
-	apps := m.items[AppsItemName]
-	if apps == nil {
-		return nil, fmt.Errorf(ItemIsMissingF, AppsItemName)
-	} else {
-		return apps, nil
-	}
-}
-
 func (m *module) AddItem(item string) error {
 	if _, found := m.items[item]; found {
 		return fmt.Errorf(ItemExistsF, item)

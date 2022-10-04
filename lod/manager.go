@@ -7,10 +7,6 @@ import (
 	"path/filepath"
 )
 
-func (m *Manager) Init(module, kind string) error {
-	return addItem(module, "sb", AppsItemName)
-}
-
 func (m *Manager) AddItem(module, item string) error {
 	return addItem(module, "sb", item)
 }
