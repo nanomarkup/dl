@@ -21,7 +21,7 @@ const (
 	ItemNameInvalidF      string = "\"%s\" incorrect item name"
 	DepItemExistsF        string = "\"%s\" already exists for \"%s\" item"
 	DefineIsMissingF      string = "\"%s\" define is not declared"
-	ModuleFilesMissingF   string = "no sb files in \"%s\""
+	ModuleFilesMissingF   string = "no .%s files in \"%s\""
 	ModuleKindIsMissing   string = "kind of modules to load is not specified"
 	ModuleKindMismatchF   string = "the \"%s\" kind of \"%s\" module is mismatch the \"%s\" selected kind"
 	ModuleErrorOnLoadingF string = "cannot load \"%s\" module/s"

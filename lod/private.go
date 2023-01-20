@@ -177,7 +177,7 @@ func loadModules(kind string) (modules, error) {
 		return mods, nil
 	} else {
 		wd, _ := os.Getwd()
-		return nil, fmt.Errorf(ModuleFilesMissingF, wd)
+		return nil, fmt.Errorf(ModuleFilesMissingF, kind, wd)
 	}
 }
 
@@ -292,7 +292,7 @@ func addItem(moduleName, kind, item string) error {
 func findItem(kind, item string) (*module, error) {
 	wd, _ := os.Getwd()
 	mods, err := loadModules(kind)
-	if (err != nil) && (err.Error() != fmt.Sprintf(ModuleFilesMissingF, wd)) {
+	if (err != nil) && (err.Error() != fmt.Sprintf(ModuleFilesMissingF, kind, wd)) {
 		return nil, err
 	}
 	for _, m := range mods {
@@ -329,7 +329,7 @@ func applyDefines(item string, defines map[string]string) (string, error) {
 func isItemExists(kind, item string) (bool, string) {
 	wd, _ := os.Getwd()
 	mods, err := loadModules(kind)
-	if (err != nil) && (err.Error() != fmt.Sprintf(ModuleFilesMissingF, wd)) {
+	if (err != nil) && (err.Error() != fmt.Sprintf(ModuleFilesMissingF, kind, wd)) {
 		return false, ""
 	}
 	for _, m := range mods {
