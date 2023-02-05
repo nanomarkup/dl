@@ -1,2 +1,2 @@
-# module
+# dependency langauge
 

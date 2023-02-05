@@ -1,7 +1,7 @@
 // Copyright 2022 Vitalii Noha vitalii.noga@gmail.com. All rights reserved.
 
 // Package smodule manages modules.
-package lod
+package app
 
 type Manager struct {
 	Logger Logger

@@ -1,4 +1,4 @@
-package lod // import "github.com/sapplications/smod/lod"
+package app // import "github.com/sapplications/dl/app"
 
 Package smodule manages modules.
 
