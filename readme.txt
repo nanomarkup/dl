@@ -1,4 +1,4 @@
-package app // import "github.com/sapplications/dl/app"
+package app // import "github.com/sapplications/dl"
 
 Package smodule manages modules.
 
