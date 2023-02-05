@@ -50,6 +50,7 @@ func (s *lodSuite) TestReadUseFilePath(c *check.C) {
 
 func (s *lodSuite) TestReadAll(c *check.C) {
 	m := Manager{}
+	m.Kind = kindName
 	m.SetLogger(hclog.New(&hclog.LoggerOptions{
 		Name:   "test",
 		Level:  hclog.Trace,
@@ -58,7 +59,7 @@ func (s *lodSuite) TestReadAll(c *check.C) {
 	wd, _ := os.Getwd()
 	defer os.Chdir(wd)
 	os.Chdir("test/app")
-	r, e := m.ReadAll("sb")
+	r, e := m.ReadAll()
 	if e != nil {
 		fmt.Println(e.Error())
 		c.Error()

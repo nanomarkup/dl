@@ -8,11 +8,11 @@ import (
 )
 
 func (m *Manager) AddItem(module, item string) error {
-	return addItem(module, "sb", item)
+	return addItem(module, m.Kind, item)
 }
 
 func (m *Manager) AddDependency(item, dependency, resolver string, update bool) error {
-	mod, err := findItem("sb", item)
+	mod, err := findItem(m.Kind, item)
 	if err != nil {
 		return err
 	} else if mod == nil {
@@ -27,7 +27,7 @@ func (m *Manager) AddDependency(item, dependency, resolver string, update bool) 
 }
 
 func (m *Manager) DeleteItem(item string) error {
-	mod, err := findItem("sb", item)
+	mod, err := findItem(m.Kind, item)
 	if err != nil {
 		return err
 	} else if mod != nil {
@@ -42,7 +42,7 @@ func (m *Manager) DeleteItem(item string) error {
 }
 
 func (m *Manager) DeleteDependency(item, dependency string) error {
-	mod, err := findItem("sb", item)
+	mod, err := findItem(m.Kind, item)
 	if err != nil {
 		return err
 	} else if mod != nil {
@@ -74,12 +74,12 @@ func (m *Manager) Read(filePath string) (Module, error) {
 	}
 }
 
-func (m *Manager) ReadAll(kind string) (Module, error) {
-	m.logTrace(fmt.Sprintf("loading \"%s\" modules", kind))
-	mods, err := loadModules(kind)
+func (m *Manager) ReadAll() (Module, error) {
+	m.logTrace(fmt.Sprintf("loading \"%s\" modules", m.Kind))
+	mods, err := loadModules(m.Kind)
 	if err == nil {
 		if mods == nil {
-			return &module{}, fmt.Errorf(ModuleErrorOnLoadingF, kind)
+			return &module{}, fmt.Errorf(ModuleErrorOnLoadingF, m.Kind)
 		}
 		m.logTrace("reading items")
 		return loadItems(mods)

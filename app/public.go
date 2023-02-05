@@ -4,6 +4,7 @@
 package app
 
 type Manager struct {
+	Kind   string
 	Logger Logger
 }
 

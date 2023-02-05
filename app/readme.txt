@@ -56,6 +56,7 @@ type Logger interface {
 }
 
 type Manager struct {
+	Kind   string
 	Logger Logger
 }
 
@@ -69,7 +70,7 @@ func (m *Manager) DeleteItem(item string) error
 
 func (m *Manager) Read(filePath string) (Module, error)
 
-func (m *Manager) ReadAll(kind string) (Module, error)
+func (m *Manager) ReadAll() (Module, error)
 
 func (m *Manager) SetLogger(logger Logger)
 
