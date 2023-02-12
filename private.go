@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -26,6 +27,8 @@ type moduleAsync struct {
 type Item = map[string]string
 type Items = map[string]Item
 type modules []module
+
+var groupId = 0
 
 func getModuleExt(kind string) string {
 	return "." + kind
@@ -49,6 +52,11 @@ func getModuleFileName(name, kind string) string {
 	}
 }
 
+func getNextGroupName() string {
+	groupId++
+	return "Gen" + strconv.Itoa(groupId)
+}
+
 func loadModule(name string, kind string) (*module, error) {
 	mod := module{}
 	mod.name = name
@@ -70,6 +78,8 @@ func loadModule(name string, kind string) (*module, error) {
 	index := 1
 	cindex := 0
 	trimChars := " \t\n\r"
+	groupItem := ""
+	groupName := ""
 	for {
 		line, err = reader.ReadString('\n')
 		if err != nil && err != io.EOF {
@@ -105,6 +115,34 @@ func loadModule(name string, kind string) (*module, error) {
 					}
 					// parse the next item
 					item = token1[:len(token1)-1]
+				} else if token1 == InitEndOptCode || token2 == InitEndOptCode {
+					// the current group ended, do nothing
+					if token2 != "" {
+						return nil, fmt.Errorf(LineSyntaxInvalidF, line)
+					}
+					groupItem = ""
+				} else if groupItem != "" {
+					// add new dependency item to the current group
+					if mod.items[groupItem] == nil {
+						mod.items[groupItem] = Item{}
+					}
+					mod.items[groupItem][token1] = token2
+				} else if token2 != "" && token2[len(token2)-1:] == InitBegOptCode {
+					// add a new unique group for initializing a special item
+					groupItem = strings.Trim(token2[:len(token2)-1], trimChars)
+					groupName = getNextGroupName()
+					token2 = fmt.Sprintf("[%s]%s", groupName, groupItem)
+					// remove the pointer from the item
+					if strings.HasPrefix(groupItem, "*") {
+						groupItem = fmt.Sprintf("[%s]%s", groupName, groupItem[1:])
+					} else {
+						groupItem = token2
+					}
+					// add new dependency to the existing item
+					if mod.items[item] == nil {
+						mod.items[item] = Item{}
+					}
+					mod.items[item][token1] = token2
 				} else {
 					// add new dependency item
 					if mod.items[item] == nil {

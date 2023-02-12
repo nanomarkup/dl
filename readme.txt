@@ -8,6 +8,8 @@ const (
 	// application
 	ItemSeparator    string = " "
 	ItemOptCode      string = ":"
+	InitBegOptCode   string = "{"
+	InitEndOptCode   string = "}"
 	DefinesOptCode   string = "defines"
 	DefineBegOptCode string = "{"
 	DefineEndOptCode string = "}"

@@ -1,0 +1,13 @@
+sb
+
+apps:
+	init
+
+init:
+	coder go
+	entry {src}/cmd.SmartBuilder 
+
+{src}/cmd.SmartBuilder: 
+	ModManager *github.com/sapplications/smod/lod.Manager {
+		Kind "sa"
+	}
