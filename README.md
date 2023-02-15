@@ -80,3 +80,6 @@ path.writer:
 ```
 - It starts from a new line
 - It begins with double slashes
+## Folder Structure
+- **.** includes sources of this project
+- **test** includes staff for testing modules
