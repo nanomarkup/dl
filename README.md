@@ -4,14 +4,15 @@ The Dependency Language provides methods for managing dependencies between items
 The first line should be the same as file extension. For example, it should be "sb" for "apps.sb" file. <sub>It should be removed.</sub>
 #### Item
 ```
-item:
+path.item:
 ```
+- Item name is a full path to the item
 - Item name starts from a new line
 - It does not include spaces 
 - It ends with the ":" token
 #### Field
 ```
-item:
+path.item:
     field
 ```
 - Field name starts from a new line
@@ -19,22 +20,29 @@ item:
 - It can be defined after item declaration
 #### Value
 ```
-item:
-    field value	
+path.item:
+    field 
+    field 1
+    field "text"
+    field path.item2
+    field *path.item2
+    field path.function(1, "text")
 ```
 - It can be empty
 - It can be a number
 - It can be a text enclosed in quotation marks
 - It can be an item name
+- It can be a reference to the item using "*" as a prefix for item name
+- It can be a function with/out parameters
 #### Group item
 ```
-item:
-    field [group]writer
+path.item:
+    field [group]path.writer
   
-writer:
+path.writer:
     Message "Hello"
 	
-[group]writer:
+[group]path.writer:
     Message "Hi"
 ```
 - Group name enclosed in square brackets
@@ -54,12 +62,12 @@ defines:
 - The define name enclosed in curly brackets will be replaced by the define value 
 #### Internal Initialization
 ```
-item:
-    field writer {
+path.item:
+    field path.writer {
         Message "Hi"
     }
   
-writer:
+path.writer:
     Message "Hello"
 ```
 - Use curly brackets for internal item initialization
