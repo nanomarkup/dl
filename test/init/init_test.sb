@@ -11,3 +11,16 @@ init:
 	ModManager *github.com/sapplications/smod/lod.Manager {
 		Kind "sa"
 	}
+	Field "New field"
+
+first: 
+	field second {
+		hello "hello"
+		field third {
+			hi "hi"
+			field fourth {
+				bye "bye"
+			}
+		}
+	}
+	bye "bye"

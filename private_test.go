@@ -12,7 +12,11 @@ func (s *lodSuite) TestLoadEmptyModule(c *check.C) {
 	wd, _ := os.Getwd()
 	defer os.Chdir(wd)
 	os.Chdir("test/empty")
-	items, err := loadModule("empty_test.sb", "sb")
+
+	file, err := os.Open(getModuleFileName("empty_test.sb", "sb"))
+	c.Assert(err, check.IsNil)
+	defer file.Close()
+	items, err := newReader(file).read()
 	c.Assert(err, check.IsNil)
 	c.Assert(items, check.NotNil)
 }
@@ -21,7 +25,11 @@ func (s *lodSuite) TestLoadInitializedStruct(c *check.C) {
 	wd, _ := os.Getwd()
 	defer os.Chdir(wd)
 	os.Chdir("test/init")
-	items, err := loadModule("init_test.sb", "sb")
+
+	file, err := os.Open(getModuleFileName("init_test.sb", "sb"))
+	c.Assert(err, check.IsNil)
+	defer file.Close()
+	items, err := newReader(file).read()
 	c.Assert(err, check.IsNil)
 	c.Assert(items, check.NotNil)
 }

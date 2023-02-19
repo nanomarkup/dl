@@ -5,13 +5,17 @@ package dl
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 )
+
+type reader struct {
+	name string
+	buf  *bufio.Reader
+}
 
 type module struct {
 	name  string
@@ -57,116 +61,8 @@ func getNextGroupName() string {
 	return "Gen" + strconv.Itoa(groupId)
 }
 
-func loadModule(name string, kind string) (*module, error) {
-	mod := module{}
-	mod.name = name
-	mod.items = Items{}
-
-	fileName := getModuleFileName(name, kind)
-	file, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	reader := bufio.NewReader(file)
-	item := ""
-	line := ""
-	token1 := ""
-	token2 := ""
-	pos := 0
-	index := 1
-	cindex := 0
-	trimChars := " \t\n\r"
-	groupItem := ""
-	groupName := ""
-	for {
-		line, err = reader.ReadString('\n')
-		if err != nil && err != io.EOF {
-			return nil, err
-		}
-		// remove comment
-		cindex = strings.Index(line, CommentOptCode)
-		if cindex > 0 {
-			line = line[:cindex]
-		}
-		// process the line
-		line = strings.Trim(line, trimChars)
-		if line != "" {
-			pos = strings.Index(line, ItemSeparator)
-			if pos > 0 {
-				token1 = strings.Trim(line[0:pos], trimChars)
-				token2 = strings.Trim(line[pos:], trimChars)
-			} else {
-				token1 = line
-				token2 = ""
-			}
-			if index == 1 {
-				// check and initialize a kind of module
-				if token1 != kind || token2 != "" {
-					return nil, fmt.Errorf(FirstTokenInvalidF, kind)
-				}
-				mod.kind = token1
-			} else {
-				// process items
-				if token1[len(token1)-1:] == ItemOptCode {
-					if token2 != "" {
-						return nil, fmt.Errorf(LineSyntaxInvalidF, line)
-					}
-					// parse the next item
-					item = token1[:len(token1)-1]
-				} else if token1 == InitEndOptCode || token2 == InitEndOptCode {
-					// the current group ended, do nothing
-					if token2 != "" {
-						return nil, fmt.Errorf(LineSyntaxInvalidF, line)
-					}
-					groupItem = ""
-				} else if groupItem != "" {
-					// add new dependency item to the current group
-					if mod.items[groupItem] == nil {
-						mod.items[groupItem] = Item{}
-					}
-					mod.items[groupItem][token1] = token2
-				} else if token2 != "" && token2[len(token2)-1:] == InitBegOptCode {
-					// add a new unique group for initializing a special item
-					groupItem = strings.Trim(token2[:len(token2)-1], trimChars)
-					groupName = getNextGroupName()
-					token2 = fmt.Sprintf("[%s]%s", groupName, groupItem)
-					// remove the pointer from the item
-					if strings.HasPrefix(groupItem, "*") {
-						groupItem = fmt.Sprintf("[%s]%s", groupName, groupItem[1:])
-					} else {
-						groupItem = token2
-					}
-					// add new dependency to the existing item
-					if mod.items[item] == nil {
-						mod.items[item] = Item{}
-					}
-					mod.items[item][token1] = token2
-				} else {
-					// add new dependency item
-					if mod.items[item] == nil {
-						mod.items[item] = Item{}
-					}
-					mod.items[item][token1] = token2
-				}
-			}
-			index++
-		}
-		// check the EOF
-		if err != nil {
-			break
-		}
-	}
-	// add empty item if it exists
-	if mod.items[item] == nil {
-		mod.items[item] = Item{}
-	}
-	return &mod, nil
-}
-
-func loadModuleAsync(name string, kind string, res chan<- moduleAsync) {
-	m, e := loadModule(name, kind)
+func loadModuleAsync(file *os.File, res chan<- moduleAsync) {
+	m, e := newReader(file).read()
 	res <- moduleAsync{m, e}
 }
 
@@ -190,7 +86,13 @@ func loadModules(kind string) (modules, error) {
 		}
 		item = make(chan moduleAsync)
 		items = append(items, item)
-		go loadModuleAsync(fname, kind, item)
+
+		file, err := os.Open(getModuleFileName(fname, kind))
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+		go loadModuleAsync(file, item)
 	}
 	// wait and process all loaded modules
 	for _, it := range items {
@@ -309,7 +211,12 @@ func addItem(moduleName, kind, item string) error {
 	var mod *module
 	var err error
 	if isModuleExists(moduleName, kind) {
-		if mod, err = loadModule(moduleName, kind); err != nil {
+		file, err := os.Open(getModuleFileName(moduleName, kind))
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		if mod, err = newReader(file).read(); err != nil {
 			return err
 		}
 		// check kind of the selected module

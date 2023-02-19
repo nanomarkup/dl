@@ -4,6 +4,7 @@ package dl
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 )
 
@@ -60,7 +61,13 @@ func (m *Manager) Read(filePath string) (Module, error) {
 	m.logTrace(fmt.Sprintf("loading \"%s\" file", filePath))
 	ext := filepath.Ext(filePath)
 	name := filePath[0 : len(filePath)-len(ext)]
-	mod, err := loadModule(name, ext[1:])
+	file, err := os.Open(getModuleFileName(name, ext[1:]))
+	if err != nil {
+		return &module{}, err
+	}
+	defer file.Close()
+
+	mod, err := newReader(file).read()
 	if err == nil {
 		if mod == nil {
 			return &module{}, fmt.Errorf(ModuleErrorOnLoadingF, filePath)
