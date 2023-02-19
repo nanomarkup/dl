@@ -33,6 +33,7 @@ type Items = map[string]Item
 type modules []module
 
 var groupId = 0
+var trimChars = " \t\n\r"
 
 func getModuleExt(kind string) string {
 	return "." + kind
@@ -102,10 +103,6 @@ func loadModules(kind string) (modules, error) {
 		}
 		if item.err != nil {
 			err = item.err
-			continue
-		}
-		// validate the loaded module
-		if kind != item.mod.kind {
 			continue
 		}
 		// add module

@@ -15,6 +15,9 @@ func newReader(file *os.File) *reader {
 }
 
 func (r *reader) read() (*module, error) {
+	if err := r.checkFile(); err != nil {
+		return nil, err
+	}
 	mod := module{}
 	mod.name = r.name
 	mod.items = Items{}
@@ -22,10 +25,6 @@ func (r *reader) read() (*module, error) {
 	line := ""
 	token1 := ""
 	token2 := ""
-	pos := 0
-	index := 1
-	cindex := 0
-	trimChars := " \t\n\r"
 	var err error
 	var ioErr error
 	for {
@@ -35,55 +34,35 @@ func (r *reader) read() (*module, error) {
 				return nil, ioErr
 			}
 		}
-		// remove comment
-		cindex = strings.Index(line, CommentOptCode)
-		if cindex > 0 {
-			line = line[:cindex]
-		}
-		// process the line
+		line = r.removeComment(line)
 		line = strings.Trim(line, trimChars)
 		if line != "" {
-			pos = strings.Index(line, ItemSeparator)
-			if pos > 0 {
-				token1 = strings.Trim(line[0:pos], trimChars)
-				token2 = strings.Trim(line[pos:], trimChars)
-			} else {
-				token1 = line
-				token2 = ""
-			}
-			if index == 1 {
-				// check and initialize a kind of module
-				// if token1 != kind || token2 != "" {
-				// 	return nil, fmt.Errorf(FirstTokenInvalidF, kind)
-				// }
-				mod.kind = token1
-			} else {
-				if token1[len(token1)-1:] == ItemOptCode {
-					// new item found, process it
-					if token2 != "" {
-						return nil, fmt.Errorf(LineSyntaxInvalidF, line)
-					}
-					item = token1[:len(token1)-1]
-					line, err = r.readItem(&mod, item)
-					if err != nil {
-						if err == io.EOF {
-							ioErr = err
-						} else {
-							return nil, err
-						}
-					}
-					if line != "" && ioErr == nil {
-						continue
-					}
-				} else {
-					// add new dependency item
-					if mod.items[item] == nil {
-						mod.items[item] = Item{}
-					}
-					mod.items[item][token1] = token2
+			// process the line
+			token1, token2 = r.splitLine(line)
+			if token1[len(token1)-1:] == ItemOptCode {
+				// new item found, process it
+				if token2 != "" {
+					return nil, fmt.Errorf(LineSyntaxInvalidF, line)
 				}
+				item = token1[:len(token1)-1]
+				line, err = r.readItem(&mod, item)
+				if err != nil {
+					if err == io.EOF {
+						ioErr = err
+					} else {
+						return nil, err
+					}
+				}
+				if line != "" && ioErr == nil {
+					continue
+				}
+			} else {
+				// add new dependency item
+				if mod.items[item] == nil {
+					mod.items[item] = Item{}
+				}
+				mod.items[item][token1] = token2
 			}
-			index++
 		}
 		// check the EOF
 		if ioErr != nil {
@@ -102,9 +81,6 @@ func (r *reader) readItem(mod *module, name string) (next string, err error) {
 	next = ""
 	token1 := ""
 	token2 := ""
-	pos := 0
-	cindex := 0
-	trimChars := " \t\n\r"
 	groupItem := ""
 	groupName := ""
 	var ioErr error
@@ -115,22 +91,11 @@ func (r *reader) readItem(mod *module, name string) (next string, err error) {
 				return "", ioErr
 			}
 		}
-		// remove comment
-		cindex = strings.Index(next, CommentOptCode)
-		if cindex > 0 {
-			next = next[:cindex]
-		}
+		next = r.removeComment(next)
 		// process the line
 		next = strings.Trim(next, trimChars)
 		if next != "" {
-			pos = strings.Index(next, ItemSeparator)
-			if pos > 0 {
-				token1 = strings.Trim(next[0:pos], trimChars)
-				token2 = strings.Trim(next[pos:], trimChars)
-			} else {
-				token1 = next
-				token2 = ""
-			}
+			token1, token2 = r.splitLine(next)
 			if token1[len(token1)-1:] == ItemOptCode {
 				// do not process the next item
 				return next, nil
@@ -179,4 +144,55 @@ func (r *reader) readItem(mod *module, name string) (next string, err error) {
 		}
 	}
 	return
+}
+
+func (r *reader) checkFile() error {
+	line := ""
+	token1 := ""
+	token2 := ""
+	var ioErr error
+	for {
+		line, ioErr = r.buf.ReadString('\n')
+		if ioErr != nil && ioErr != io.EOF {
+			return ioErr
+		}
+		line = r.removeComment(line)
+		line = strings.Trim(line, trimChars)
+		if line != "" {
+			token1, token2 = r.splitLine(line)
+			// check the current file
+			if token1 != AppCode || token2 != "" {
+				return fmt.Errorf(FirstTokenInvalid)
+			} else {
+				return nil
+			}
+		}
+		// check the EOF
+		if ioErr != nil {
+			break
+		}
+		line = ""
+	}
+	return fmt.Errorf(FirstTokenIsMissing)
+}
+
+func (r *reader) splitLine(line string) (t1 string, t2 string) {
+	pos := strings.Index(line, ItemSeparator)
+	if pos > 0 {
+		t1 = strings.Trim(line[0:pos], trimChars)
+		t2 = strings.Trim(line[pos:], trimChars)
+	} else {
+		t1 = line
+		t2 = ""
+	}
+	return
+}
+
+func (r *reader) removeComment(line string) string {
+	index := strings.Index(line, CommentOptCode)
+	if index > 0 {
+		return line[:index]
+	} else {
+		return line
+	}
 }

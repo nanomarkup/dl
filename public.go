@@ -32,6 +32,7 @@ type Formatter struct {
 
 const (
 	// application
+	AppCode          string = "dl"
 	ItemSeparator    string = " "
 	ItemOptCode      string = ":"
 	InitBegOptCode   string = "{"
@@ -53,6 +54,7 @@ const (
 	ModuleKindIsMissing   string = "kind of modules to load is not specified"
 	ModuleKindMismatchF   string = "the \"%s\" kind of \"%s\" module is mismatch the \"%s\" selected kind"
 	ModuleErrorOnLoadingF string = "cannot load \"%s\" module/s"
-	FirstTokenInvalidF    string = "the first token should be \"%s\""
+	FirstTokenInvalid     string = "incorrect type of file"
+	FirstTokenIsMissing   string = "type of file is missing"
 	LineSyntaxInvalidF    string = "invalid syntax in \"%s\" line"
 )
