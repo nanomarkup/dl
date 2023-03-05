@@ -29,7 +29,7 @@ func (f *Formatter) Item(name string, deps map[string]string) string {
 
 func (f *Formatter) String(module Module) string {
 	var res bytes.Buffer
-	res.WriteString(fmt.Sprintf(attrs.kindFmt, module.Kind()))
+	res.WriteString(fmt.Sprintf(attrs.typeFmt, AppCode))
 	// sort items
 	items := module.Items()
 	sorted := make([]string, 0, len(items))

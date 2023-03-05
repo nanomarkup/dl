@@ -22,7 +22,6 @@ type Logger interface {
 }
 
 type Module interface {
-	Kind() string
 	Items() map[string]map[string]string
 	Dependency(string, string) string
 }
@@ -52,7 +51,6 @@ const (
 	DefineIsMissingF      string = "\"%s\" define is not declared"
 	ModuleFilesMissingF   string = "no .%s files in \"%s\""
 	ModuleKindIsMissing   string = "kind of modules to load is not specified"
-	ModuleKindMismatchF   string = "the \"%s\" kind of \"%s\" module is mismatch the \"%s\" selected kind"
 	ModuleErrorOnLoadingF string = "cannot load \"%s\" module/s"
 	FirstTokenInvalid     string = "incorrect type of file"
 	FirstTokenIsMissing   string = "type of file is missing"

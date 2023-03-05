@@ -8,10 +8,6 @@ import (
 	"gopkg.in/check.v1"
 )
 
-func (s *lodSuite) TestKind(c *check.C) {
-	c.Assert(s.mod.Kind(), check.Equals, kindName)
-}
-
 func (s *lodSuite) TestItems(c *check.C) {
 	items := s.mod.Items()
 	c.Assert(items, check.NotNil)

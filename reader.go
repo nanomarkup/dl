@@ -77,6 +77,11 @@ func (r *reader) read() (*module, error) {
 	return &mod, nil
 }
 
+func (r *reader) readAsync(res chan<- moduleAsync) {
+	m, e := r.read()
+	res <- moduleAsync{m, e}
+}
+
 func (r *reader) readItem(mod *module, name string) (next string, err error) {
 	next = ""
 	token1 := ""

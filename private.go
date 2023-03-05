@@ -19,7 +19,6 @@ type reader struct {
 
 type module struct {
 	name  string
-	kind  string
 	items Items
 }
 
@@ -62,11 +61,6 @@ func getNextGroupName() string {
 	return "Gen" + strconv.Itoa(groupId)
 }
 
-func loadModuleAsync(file *os.File, res chan<- moduleAsync) {
-	m, e := newReader(file).read()
-	res <- moduleAsync{m, e}
-}
-
 func loadModules(kind string) (modules, error) {
 	if kind == "" {
 		return nil, fmt.Errorf(ModuleKindIsMissing)
@@ -93,7 +87,7 @@ func loadModules(kind string) (modules, error) {
 			return nil, err
 		}
 		defer file.Close()
-		go loadModuleAsync(file, item)
+		go newReader(file).readAsync(item)
 	}
 	// wait and process all loaded modules
 	for _, it := range items {
@@ -106,7 +100,7 @@ func loadModules(kind string) (modules, error) {
 			continue
 		}
 		// add module
-		mods = append(mods, module{name: getModuleName(item.mod.name, kind), kind: item.mod.kind, items: item.mod.items})
+		mods = append(mods, module{name: getModuleName(item.mod.name, kind), items: item.mod.items})
 	}
 	if err != nil {
 		return nil, err
@@ -120,10 +114,6 @@ func loadModules(kind string) (modules, error) {
 
 func loadItems(mods modules) (*module, error) {
 	all := Items{}
-	kind := ""
-	if len(mods) > 0 {
-		kind = mods[0].kind
-	}
 	for _, m := range mods {
 		// read all items and validate them
 		for name, data := range m.items {
@@ -174,12 +164,12 @@ func loadItems(mods modules) (*module, error) {
 		}
 		delete(all, DefinesOptCode)
 	}
-	return &module{name: "", kind: kind, items: all}, nil
+	return &module{name: "", items: all}, nil
 }
 
 func saveModule(module *module) error {
-	fileName := getModuleFileName(module.name, module.kind)
-	exists := isModuleExists(fileName, module.kind)
+	fileName := getModuleFileName(module.name, "sb")
+	exists := isModuleExists(fileName, "sb")
 	file, err := os.Create(fileName)
 	if err != nil {
 		return err
@@ -216,12 +206,8 @@ func addItem(moduleName, kind, item string) error {
 		if mod, err = newReader(file).read(); err != nil {
 			return err
 		}
-		// check kind of the selected module
-		if mod.kind != kind {
-			return fmt.Errorf(ModuleKindMismatchF, mod.kind, mod.name, kind)
-		}
 	} else {
-		mod = &module{name: moduleName, kind: kind, items: Items{}}
+		mod = &module{name: moduleName, items: Items{}}
 	}
 	// add the item to the selected module
 	if err = mod.AddItem(item); err != nil {

@@ -49,8 +49,7 @@ func (s *lodSuite) TestReadUseFilePath(c *check.C) {
 }
 
 func (s *lodSuite) TestReadAll(c *check.C) {
-	m := Manager{}
-	m.Kind = kindName
+	m := Manager{Kind: "sb"}
 	m.SetLogger(hclog.New(&hclog.LoggerOptions{
 		Name:   "test",
 		Level:  hclog.Trace,

@@ -7,17 +7,13 @@ import (
 )
 
 var attrs = struct {
-	kindFmt string
+	typeFmt string
 	itemFmt string
 	depFmt  string
 }{
 	"%s\n",
 	"%s" + ItemOptCode + "\n",
 	"%s" + ItemSeparator + "%s\n",
-}
-
-func (m *module) Kind() string {
-	return m.kind
 }
 
 func (m *module) Items() Items {

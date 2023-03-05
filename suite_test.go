@@ -18,13 +18,11 @@ type lodSuite struct {
 
 var _ = check.Suite(&lodSuite{
 	mod: module{
-		kind: kindName,
 		items: Items{
 			appName: map[string]string{},
 		},
 	}})
 
 const (
-	kindName string = "sb"
-	appName  string = "test"
+	appName string = "test"
 )

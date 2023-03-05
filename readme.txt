@@ -6,6 +6,7 @@ CONSTANTS
 
 const (
 	// application
+	AppCode          string = "dl"
 	ItemSeparator    string = " "
 	ItemOptCode      string = ":"
 	InitBegOptCode   string = "{"
@@ -25,9 +26,9 @@ const (
 	DefineIsMissingF      string = "\"%s\" define is not declared"
 	ModuleFilesMissingF   string = "no .%s files in \"%s\""
 	ModuleKindIsMissing   string = "kind of modules to load is not specified"
-	ModuleKindMismatchF   string = "the \"%s\" kind of \"%s\" module is mismatch the \"%s\" selected kind"
 	ModuleErrorOnLoadingF string = "cannot load \"%s\" module/s"
-	FirstTokenInvalidF    string = "the first token should be \"%s\""
+	FirstTokenInvalid     string = "incorrect type of file"
+	FirstTokenIsMissing   string = "type of file is missing"
 	LineSyntaxInvalidF    string = "invalid syntax in \"%s\" line"
 )
 
@@ -77,7 +78,6 @@ func (m *Manager) ReadAll() (Module, error)
 func (m *Manager) SetLogger(logger Logger)
 
 type Module interface {
-	Kind() string
 	Items() map[string]map[string]string
 	Dependency(string, string) string
 }
