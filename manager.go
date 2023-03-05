@@ -22,7 +22,7 @@ func (m *Manager) AddDependency(item, dependency, resolver string, update bool) 
 		if err = mod.AddDependency(item, dependency, resolver, update); err != nil {
 			return err
 		} else {
-			return saveModule(mod)
+			return saveModule(mod, m.Kind)
 		}
 	}
 }
@@ -35,7 +35,7 @@ func (m *Manager) DeleteItem(item string) error {
 		if err = mod.DeleteItem(item); err != nil {
 			return err
 		} else {
-			return saveModule(mod)
+			return saveModule(mod, m.Kind)
 		}
 	} else {
 		return nil
@@ -50,7 +50,7 @@ func (m *Manager) DeleteDependency(item, dependency string) error {
 		if err = mod.DeleteDependency(item, dependency); err != nil {
 			return err
 		} else {
-			return saveModule(mod)
+			return saveModule(mod, m.Kind)
 		}
 	} else {
 		return nil

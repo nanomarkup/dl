@@ -167,9 +167,9 @@ func loadItems(mods modules) (*module, error) {
 	return &module{name: "", items: all}, nil
 }
 
-func saveModule(module *module) error {
-	fileName := getModuleFileName(module.name, "sb")
-	exists := isModuleExists(fileName, "sb")
+func saveModule(module *module, kind string) error {
+	fileName := getModuleFileName(module.name, kind)
+	exists := isModuleExists(fileName)
 	file, err := os.Create(fileName)
 	if err != nil {
 		return err
@@ -197,8 +197,9 @@ func addItem(moduleName, kind, item string) error {
 	// load the existing module or create a new one
 	var mod *module
 	var err error
-	if isModuleExists(moduleName, kind) {
-		file, err := os.Open(getModuleFileName(moduleName, kind))
+	fileName := getModuleFileName(moduleName, kind)
+	if isModuleExists(fileName) {
+		file, err := os.Open(fileName)
 		if err != nil {
 			return err
 		}
@@ -213,7 +214,7 @@ func addItem(moduleName, kind, item string) error {
 	if err = mod.AddItem(item); err != nil {
 		return err
 	} else {
-		return saveModule(mod)
+		return saveModule(mod, kind)
 	}
 }
 
@@ -268,7 +269,7 @@ func isItemExists(kind, item string) (bool, string) {
 	return false, ""
 }
 
-func isModuleExists(name, kind string) bool {
-	_, err := os.Stat(getModuleFileName(name, kind))
+func isModuleExists(fileName string) bool {
+	_, err := os.Stat(fileName)
 	return err == nil
 }
