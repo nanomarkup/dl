@@ -47,16 +47,42 @@ func (s *lodSuite) TestAddDependency(c *check.C) {
 	c.Assert(items, check.NotNil)
 	item := items[itemName]
 	c.Assert(item, check.NotNil)
-	res, found := item[depName]
+	res := ""
+	found := false
+	for _, row := range item {
+		if row[0] == depName {
+			res = row[1]
+			found = true
+			break
+		}
+	}
 	c.Assert(found, check.Equals, true)
 	c.Assert(res, check.Equals, resName)
 	// test with the update flag is false
 	s.mod.AddDependency(itemName, depName, "new-resolver-2", false)
-	res = item[depName]
+	res = ""
+	found = false
+	item = items[itemName]
+	for _, row := range item {
+		if row[0] == depName {
+			res = row[1]
+			found = true
+			break
+		}
+	}
 	c.Assert(res, check.Equals, resName)
 	// test with the update flag is true
 	s.mod.AddDependency(itemName, depName, "new-resolver-2", true)
-	res = item[depName]
+	res = ""
+	found = false
+	item = items[itemName]
+	for _, row := range item {
+		if row[0] == depName {
+			res = row[1]
+			found = true
+			break
+		}
+	}
 	c.Assert(res, check.Equals, "new-resolver-2")
 }
 
@@ -65,11 +91,18 @@ func (s *lodSuite) TestAddDeleteDependency(c *check.C) {
 	depName := "del-dependency"
 	s.mod.AddItem(itemName)
 	s.mod.AddDependency(itemName, depName, "new-resolver", false)
-	item := s.mod.items[itemName]
-	l := len(item)
+	l := len(s.mod.items[itemName])
 	s.mod.DeleteDependency(itemName, depName)
-	c.Assert(len(item), check.Equals, l-1)
-	res, found := item[depName]
+	c.Assert(len(s.mod.items[itemName]), check.Equals, l-1)
+	res := ""
+	found := false
+	for _, row := range s.mod.items[itemName] {
+		if row[0] == depName {
+			res = row[1]
+			found = true
+			break
+		}
+	}
 	c.Assert(res, check.Equals, "")
 	c.Assert(found, check.Equals, false)
 }

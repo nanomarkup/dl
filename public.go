@@ -22,7 +22,7 @@ type Logger interface {
 }
 
 type Module interface {
-	Items() map[string]map[string]string
+	Items() map[string][][]string
 	Dependency(string, string) string
 }
 

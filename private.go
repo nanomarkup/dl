@@ -27,7 +27,7 @@ type moduleAsync struct {
 	err error
 }
 
-type Item = map[string]string
+type Item = [][]string
 type Items = map[string]Item
 type modules []module
 
@@ -125,6 +125,7 @@ func loadItems(mods modules) (*module, error) {
 	}
 	// process defines
 	newItem := ""
+	var l int
 	var err error
 	if defines, found := all[DefinesOptCode]; found && len(defines) > 0 {
 		for item, deps := range all {
@@ -141,24 +142,27 @@ func loadItems(mods modules) (*module, error) {
 				delete(all, item)
 			}
 			// process all dependencies
-			for dk, dv := range deps {
-				// update dependency name
-				newItem, err = applyDefines(dk, defines)
-				if err != nil {
-					return nil, err
+			for i, row := range deps {
+				l = len(row)
+				if l > 0 {
+					// update dependency name
+					newItem, err = applyDefines(row[0], defines)
+					if err != nil {
+						return nil, err
+					}
+					if newItem != row[0] {
+						deps[i][0] = newItem
+					}
 				}
-				if newItem != dk {
-					deps[newItem] = dv
-					delete(deps, dk)
-					dk = newItem
-				}
-				// update resolver
-				newItem, err = applyDefines(dv, defines)
-				if err != nil {
-					return nil, err
-				}
-				if newItem != dv {
-					deps[dk] = newItem
+				if l > 1 {
+					// update resolver
+					newItem, err = applyDefines(row[1], defines)
+					if err != nil {
+						return nil, err
+					}
+					if newItem != row[1] {
+						deps[i][1] = newItem
+					}
 				}
 			}
 		}
@@ -232,12 +236,14 @@ func findItem(kind, item string) (*module, error) {
 	return nil, nil
 }
 
-func applyDefines(item string, defines map[string]string) (string, error) {
+func applyDefines(item string, defines [][]string) (string, error) {
 	beg := strings.Index(item, DefineBegOptCode)
 	end := -1
 	defineOrg := ""
 	defineName := ""
 	trimDefineChars := fmt.Sprintf(" %s%s", DefineBegOptCode, DefineEndOptCode)
+	value := ""
+	found := false
 	for beg > -1 {
 		end = strings.Index(item, DefineEndOptCode)
 		if end < beg {
@@ -245,7 +251,18 @@ func applyDefines(item string, defines map[string]string) (string, error) {
 		}
 		defineOrg = item[beg : end+1]
 		defineName = strings.Trim(defineOrg, trimDefineChars)
-		if value, found := defines[defineName]; found {
+		value = ""
+		found = false
+		for _, def := range defines {
+			if def[0] == defineName {
+				found = true
+				if len(def) > 1 {
+					value = def[1]
+				}
+				break
+			}
+		}
+		if found {
 			item = strings.Replace(item, defineOrg, value, 1)
 		} else {
 			return "", fmt.Errorf(DefineIsMissingF, defineName)

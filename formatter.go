@@ -8,21 +8,21 @@ import (
 	"sort"
 )
 
-func (f *Formatter) Item(name string, deps map[string]string) string {
+func (f *Formatter) Item(name string, deps [][]string) string {
 	if deps == nil {
 		return ""
 	}
 	var res bytes.Buffer
 	res.WriteString(fmt.Sprintf(attrs.itemFmt, name))
-	// sort dependency items
-	depsSorted := make([]string, 0, len(deps))
-	for dep := range deps {
-		depsSorted = append(depsSorted, dep)
-	}
-	sort.Strings(depsSorted)
-	// add dependency items
-	for _, dep := range depsSorted {
-		res.WriteString(fmt.Sprintf("\t"+attrs.depFmt, dep, deps[dep]))
+	var d, r string
+	for _, row := range deps {
+		d = row[0]
+		if len(row) > 1 {
+			r = row[1]
+		} else {
+			r = ""
+		}
+		res.WriteString(fmt.Sprintf("\t"+attrs.depFmt, d, r))
 	}
 	return res.String()
 }

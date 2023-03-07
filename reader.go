@@ -61,7 +61,7 @@ func (r *reader) read() (*module, error) {
 				if mod.items[item] == nil {
 					mod.items[item] = Item{}
 				}
-				mod.items[item][token1] = token2
+				mod.items[item] = append(mod.items[item], Item{{token1, token2}}...)
 			}
 		}
 		// check the EOF
@@ -125,7 +125,7 @@ func (r *reader) readItem(mod *module, name string) (next string, err error) {
 				if mod.items[name] == nil {
 					mod.items[name] = Item{}
 				}
-				mod.items[name][token1] = token2
+				mod.items[name] = append(mod.items[name], Item{{token1, token2}}...)
 				// read the group item
 				next, err = r.readItem(mod, groupItem)
 				if err != nil {
@@ -139,7 +139,7 @@ func (r *reader) readItem(mod *module, name string) (next string, err error) {
 				if mod.items[name] == nil {
 					mod.items[name] = Item{}
 				}
-				mod.items[name][token1] = token2
+				mod.items[name] = append(mod.items[name], Item{{token1, token2}}...)
 			}
 		}
 		next = ""

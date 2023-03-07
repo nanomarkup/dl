@@ -19,7 +19,7 @@ type lodSuite struct {
 var _ = check.Suite(&lodSuite{
 	mod: module{
 		items: Items{
-			appName: map[string]string{},
+			appName: [][]string{},
 		},
 	}})
 
