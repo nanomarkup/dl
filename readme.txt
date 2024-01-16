@@ -1,9 +1,6 @@
 package dl // import "github.com/sapplications/dl"
-
 Package smodule manages modules.
-
 CONSTANTS
-
 const (
 	// application
 	AppCode          string = "dl"
@@ -31,20 +28,13 @@ const (
 	FirstTokenIsMissing   string = "type of file is missing"
 	LineSyntaxInvalidF    string = "invalid syntax in \"%s\" line"
 )
-
 TYPES
-
 type Formatter struct {
 }
-
-func (f *Formatter) Item(name string, deps map[string]string) string
-
+func (f *Formatter) Item(name string, deps [][]string) string
 func (f *Formatter) String(module Module) string
-
-type Item = map[string]string
-
+type Item = [][]string
 type Items = map[string]Item
-
 type Logger interface {
 	Trace(msg string, args ...interface{})
 	Debug(msg string, args ...interface{})
@@ -57,28 +47,18 @@ type Logger interface {
 	IsWarn() bool
 	IsError() bool
 }
-
 type Manager struct {
 	Kind   string
 	Logger Logger
 }
-
 func (m *Manager) AddDependency(item, dependency, resolver string, update bool) error
-
 func (m *Manager) AddItem(module, item string) error
-
 func (m *Manager) DeleteDependency(item, dependency string) error
-
 func (m *Manager) DeleteItem(item string) error
-
 func (m *Manager) Read(filePath string) (Module, error)
-
 func (m *Manager) ReadAll() (Module, error)
-
 func (m *Manager) SetLogger(logger Logger)
-
 type Module interface {
-	Items() map[string]map[string]string
+	Items() map[string][][]string
 	Dependency(string, string) string
 }
-
