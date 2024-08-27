@@ -8,7 +8,7 @@ init:
 	entry {src}/cmd.SmartBuilder 
 
 {src}/cmd.SmartBuilder: 
-	ModManager *github.com/sapplications/smod/lod.Manager {
+	ModManager *github.com/nanomarkup/smod/lod.Manager {
 		Kind "sa"
 	}
 	Field "New field"

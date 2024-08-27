@@ -51,7 +51,7 @@ path.writer:
 #### Defines
 ```
 defines:
-    name github.com/sapplications
+    name github.com/nanomarkup
   
 {name}/dl:
     field {name}/sb

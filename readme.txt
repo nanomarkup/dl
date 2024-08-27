@@ -1,4 +1,4 @@
-package dl // import "github.com/sapplications/dl"
+package dl // import "dl"
 Package smodule manages modules.
 CONSTANTS
 const (

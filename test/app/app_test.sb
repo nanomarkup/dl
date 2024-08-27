@@ -4,7 +4,7 @@ apps:
 	sb
 
 defines:
-	src github.com/sapplications/sb
+	src github.com/nanomarkup/sb
 	logDefault 0
 	logTrace 1
 	logDebug 2
@@ -19,7 +19,7 @@ sb:
 
 {src}/app.SmartBuilder:
 	Builder *{src}/plugins.BuilderPlugin
-	ModManager *github.com/sapplications/smod/lod.Manager
+	ModManager *github.com/nanomarkup/smod/lod.Manager
 	PluginHandshake github.com/hashicorp/go-plugin.HandshakeConfig
 	Logger {src}/helper/hashicorp/hclog.NewStdOut("sb", {logInfo})
 
