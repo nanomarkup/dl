@@ -1,4 +1,4 @@
-module dl
+module github.com/nanomarkup/dl
 
 go 1.21.6
 

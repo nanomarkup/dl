@@ -1,4 +1,4 @@
-package dl // import "dl"
+package dl // import "github.com/nanomarkup/dl"
 Package smodule manages modules.
 CONSTANTS
 const (
